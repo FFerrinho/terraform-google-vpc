@@ -1,5 +1,5 @@
 resource "google_compute_network" "main" {
-  name                                      = var.vpc_name
+  name                                      = join("-", ["vpc", var.vpc_name])
   description                               = var.vpc_description
   auto_create_subnetworks                   = var.auto_create_subnetworks
   routing_mode                              = var.routing_mode
@@ -13,8 +13,8 @@ resource "google_compute_network" "main" {
 resource "google_compute_subnetwork" "main" {
   for_each                 = var.subnets != null ? var.subnets : {}
   ip_cidr_range            = each.value["ip_cidr_range"]
-  name                     = each.key
-  network                  = google_compute_network.main.id
+  name                     = join("-", ["subnet", each.key])
+  network                  = google_compute_network.main.self_link
   description              = each.value["description"]
   purpose                  = each.value["purpose"]
   role                     = each.value["role"]
@@ -57,13 +57,14 @@ locals {
   ])
 }
 
-resource "google_compute_subnetwork_iam_binding" "subnetwork_iam_binding" {
+resource "google_compute_subnetwork_iam_binding" "main" {
   for_each = { for b in local.flattened_iam_bindings : "${b.role}.${b.subnet}" => b }
 
   project    = var.project_id
   region     = each.value.region
   role       = each.value.role
-  subnetwork = each.value.subnet
-
+  subnetwork = join("-", ["subnet", each.value.subnet])
   members = each.value.members
+
+  depends_on = [ google_compute_subnetwork.main ]
 }

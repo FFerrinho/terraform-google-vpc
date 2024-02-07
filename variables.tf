@@ -86,5 +86,5 @@ variable "iam_bindings" {
     subnetwork = set(string)
     members = set(string)
   }))
-  default = null
+  default = {}
 }

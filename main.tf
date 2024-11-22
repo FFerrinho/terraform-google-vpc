@@ -68,3 +68,15 @@ resource "google_compute_subnetwork_iam_binding" "main" {
 
   depends_on = [ google_compute_subnetwork.main ]
 }
+
+resource "google_compute_shared_vpc_host_project" "main" {
+  count = var.enable_vpc_host_project ? 1 : 0
+  project = var.project_id
+}
+
+resource "google_compute_shared_vpc_service_project" "main" {
+  for_each = var.vpc_service_projects != null ? var.vpc_service_projects : []
+  host_project = google_compute_shared_vpc_host_project.main[0].project
+  service_project = each.key
+  deletion_policy = var.deletion_policy
+}

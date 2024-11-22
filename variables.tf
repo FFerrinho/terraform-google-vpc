@@ -88,3 +88,21 @@ variable "iam_bindings" {
   }))
   default = {}
 }
+
+variable "enable_vpc_host_project" {
+  description = "Whether to enable the VPC host project."
+  type        = bool
+  default     = false
+}
+
+variable "vpc_service_projects" {
+  description = "A list of service projects to attach the Shared VPC."
+  type = set(string)
+  default = null
+}
+
+variable "deletion_policy" {
+  description = "The deletion policy for the Shared VPC Service project attchement."
+  type        = string
+  default     = "ABANDON"
+}

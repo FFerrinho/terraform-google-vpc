@@ -22,3 +22,26 @@ output "iam_bindings" {
     }...
   }
 }
+
+output "network_id" {
+  description = "The ID of the VPC"
+  value       = google_compute_network.main.id
+}
+
+output "subnets_secondary_ranges" {
+  description = "The secondary ranges of each subnet"
+  value = {
+    for subnet_name, subnet in google_compute_subnetwork.main : subnet_name => subnet.secondary_ip_range
+  }
+}
+
+output "subnets_ips" {
+  description = "The IPs and CIDRs of the subnets"
+  value = {
+    for subnet_name, subnet in google_compute_subnetwork.main : subnet_name => {
+      ip_cidr_range = subnet.ip_cidr_range
+      gateway_address = subnet.gateway_address
+      region = subnet.region
+    }
+  }
+}

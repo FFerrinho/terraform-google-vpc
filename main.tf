@@ -14,6 +14,7 @@ resource "google_compute_subnetwork" "main" {
   for_each                 = var.subnets != null ? var.subnets : {}
   ip_cidr_range            = each.value["ip_cidr_range"]
   name                     = join("-", ["subnet", each.key])
+  project                  = var.project_id
   network                  = google_compute_network.main.self_link
   description              = each.value["description"]
   purpose                  = each.value["purpose"]
@@ -48,10 +49,10 @@ locals {
   flattened_iam_bindings = flatten([
     for role, binding in var.iam_bindings : [
       for subnet in binding.subnetwork : {
-        role     = role
-        region   = binding.region
-        subnet   = subnet
-        members  = binding.members
+        role    = role
+        region  = binding.region
+        subnet  = subnet
+        members = binding.members
       }
     ]
   ])
@@ -64,19 +65,19 @@ resource "google_compute_subnetwork_iam_binding" "main" {
   region     = each.value.region
   role       = each.value.role
   subnetwork = join("-", ["subnet", each.value.subnet])
-  members = each.value.members
+  members    = each.value.members
 
-  depends_on = [ google_compute_subnetwork.main ]
+  depends_on = [google_compute_subnetwork.main]
 }
 
 resource "google_compute_shared_vpc_host_project" "main" {
-  count = var.enable_vpc_host_project ? 1 : 0
+  count   = var.enable_vpc_host_project ? 1 : 0
   project = var.project_id
 }
 
 resource "google_compute_shared_vpc_service_project" "main" {
-  for_each = var.vpc_service_projects != null ? var.vpc_service_projects : []
-  host_project = google_compute_shared_vpc_host_project.main[0].project
+  for_each        = var.vpc_service_projects != null ? var.vpc_service_projects : []
+  host_project    = google_compute_shared_vpc_host_project.main[0].project
   service_project = each.key
   deletion_policy = var.deletion_policy
 }

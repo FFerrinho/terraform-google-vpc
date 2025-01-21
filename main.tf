@@ -47,11 +47,11 @@ resource "google_compute_subnetwork" "main" {
 
 locals {
   flattened_iam_bindings = flatten([
-    for role, binding in var.iam_bindings : [
-      for subnet in binding.subnetwork : {
-        role    = role
+    for subnet_name, roles in var.iam_bindings : [
+      for role_name, binding in roles : {
+        subnet  = subnet_name
+        role    = role_name
         region  = binding.region
-        subnet  = subnet
         members = binding.members
       }
     ]
@@ -59,8 +59,8 @@ locals {
 }
 
 resource "google_compute_subnetwork_iam_binding" "main" {
-  for_each = { for b in local.flattened_iam_bindings : "${b.role}.${b.subnet}" => b }
-
+  for_each = { for b in local.flattened_iam_bindings : "${b.subnet}.${b.role}" => b }
+  
   project    = var.project_id
   region     = each.value.region
   role       = each.value.role

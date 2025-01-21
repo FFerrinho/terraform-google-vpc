@@ -80,12 +80,11 @@ variable "subnets" {
 }
 
 variable "iam_bindings" {
-  description = "IAM bindings"
-  type = map(object({
-    region  = string
-    subnetwork = set(string)
+  description = "IAM bindings per subnet and role"
+  type = map(map(object({
     members = set(string)
-  }))
+    region  = string
+  })))
   default = {}
 }
 

@@ -3,6 +3,11 @@ output "subnetwork_self_links" {
   value       = [for s in google_compute_subnetwork.main : s.self_link]
 }
 
+output "subnetwork_ids" {
+  description = "The IDs of all subnetworks."
+  value       = [for s in google_compute_subnetwork.main : s.id]
+}
+
 output "vpc_name" {
   description = "The name of the VPC."
   value = google_compute_network.main.name
@@ -24,6 +29,11 @@ output "iam_bindings" {
 }
 
 output "network_id" {
+  description = "The ID of the VPC"
+  value       = google_compute_network.main.id
+}
+
+output "vpc_id" {
   description = "The ID of the VPC"
   value       = google_compute_network.main.id
 }

@@ -3,6 +3,18 @@ variable "vpc_name" {
   type        = string
 }
 
+variable "vpc_name_prefix" {
+  description = "Prefix prepended to the VPC name, producing '<prefix>-<vpc_name>'. Set to an empty string to use vpc_name as-is."
+  type        = string
+  default     = "vpc"
+}
+
+variable "subnet_name_prefix" {
+  description = "Prefix prepended to each subnet name, producing '<prefix>-<subnet key>'. Set to an empty string to use the subnet key as-is."
+  type        = string
+  default     = "subnet"
+}
+
 variable "vpc_description" {
   description = "A description of the VPC."
   type        = string
@@ -95,13 +107,13 @@ variable "enable_vpc_host_project" {
 }
 
 variable "vpc_service_projects" {
-  description = "A list of service projects to attach the Shared VPC."
-  type = set(string)
-  default = null
+  description = "A set of service project IDs to attach to the Shared VPC host project."
+  type        = set(string)
+  default     = null
 }
 
 variable "deletion_policy" {
-  description = "The deletion policy for the Shared VPC Service project attchement."
+  description = "The deletion policy for the Shared VPC service project attachment."
   type        = string
   default     = "ABANDON"
 }

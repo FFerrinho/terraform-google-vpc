@@ -1,5 +1,14 @@
+locals {
+  network_name = var.vpc_name_prefix != "" ? "${var.vpc_name_prefix}-${var.vpc_name}" : var.vpc_name
+
+  subnet_names = {
+    for key in keys(var.subnets != null ? var.subnets : {}) :
+    key => var.subnet_name_prefix != "" ? "${var.subnet_name_prefix}-${key}" : key
+  }
+}
+
 resource "google_compute_network" "main" {
-  name                                      = join("-", ["vpc", var.vpc_name])
+  name                                      = local.network_name
   description                               = var.vpc_description
   auto_create_subnetworks                   = var.auto_create_subnetworks
   routing_mode                              = var.routing_mode
@@ -13,7 +22,7 @@ resource "google_compute_network" "main" {
 resource "google_compute_subnetwork" "main" {
   for_each                 = var.subnets != null ? var.subnets : {}
   ip_cidr_range            = each.value["ip_cidr_range"]
-  name                     = join("-", ["subnet", each.key])
+  name                     = local.subnet_names[each.key]
   project                  = var.project_id
   network                  = google_compute_network.main.self_link
   description              = each.value["description"]
@@ -60,14 +69,12 @@ locals {
 
 resource "google_compute_subnetwork_iam_binding" "main" {
   for_each = { for b in local.flattened_iam_bindings : "${b.subnet}.${b.role}" => b }
-  
+
   project    = var.project_id
   region     = each.value.region
   role       = each.value.role
-  subnetwork = join("-", ["subnet", each.value.subnet])
+  subnetwork = google_compute_subnetwork.main[each.value.subnet].name
   members    = each.value.members
-
-  depends_on = [google_compute_subnetwork.main]
 }
 
 resource "google_compute_shared_vpc_host_project" "main" {

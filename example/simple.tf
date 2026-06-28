@@ -1,7 +1,7 @@
-module "vpc" {
-  source     = "path/to/module"
+module "simple" {
+  source     = "../"
   project_id = "my-project-id"
-  vpc_name   = "simple-vpc"
+  vpc_name   = "simple"
 
   subnets = {
     "subnet-1" = {

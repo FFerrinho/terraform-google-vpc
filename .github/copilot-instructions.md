@@ -13,8 +13,8 @@
 - **Purpose:** Reusable Terraform module that provisions a Google Cloud VPC — the network,
   map-driven subnetworks (with secondary ranges and VPC flow-log config), per-subnet IAM
   bindings, and Shared VPC host/service-project attachment.
-- **Stack:** Terraform; provider `hashicorp/google ~> 6` (validated against 6.16.0; constraint
-  `>= 5.14.0`). Leaf module — consumes no other modules.
+- **Stack:** Terraform `>= 1.5`; provider `hashicorp/google >= 6.0, < 8.0` (validated against
+  7.38.0). Leaf module — consumes no other modules.
 - **Environments:** N/A — this is a reusable module, not an environment deployment. Consumers
   supply `project_id`, `vpc_name`, and the `subnets` map.
 - **State / backend:** N/A — the module defines no backend; the calling configuration owns state.

@@ -14,18 +14,29 @@
   map-driven subnetworks (with secondary ranges and VPC flow-log config), per-subnet IAM
   bindings, and Shared VPC host/service-project attachment.
 - **Stack:** Terraform `>= 1.5`; provider `hashicorp/google >= 6.0, < 8.0` (validated against
-  7.38.0). Leaf module — consumes no other modules.
+  v7). Leaf module — consumes no other modules.
 - **Environments:** N/A — this is a reusable module, not an environment deployment. Consumers
   supply `project_id`, `vpc_name`, and the `subnets` map.
 - **State / backend:** N/A — the module defines no backend; the calling configuration owns state.
 - **Layout & conventions:** root `*.tf` (`main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`);
-  usage in `example/`; `README.md` is `terraform-docs`-generated. Resource names are prefixed
-  (`vpc-<vpc_name>`, `subnet-<key>`) and resources are `for_each` map-driven.
+  usage in `example/`; `README.md` is `terraform-docs`-generated. Resource names are optionally
+  prefixed via `vpc_name_prefix` / `subnet_name_prefix` (default: no prefix); resources are
+  `for_each` map-driven.
 
 ## Working intelligence — before writing anything
-- **Reuse first.** Search this repo (and the module registries it already uses) for existing code,
-  modules, and patterns that solve or half-solve the task; prefer **extending** them over creating new.
-  Name what you're building on, or state explicitly that nothing fits.
+- **Reuse before you create — never add a new resource without first ruling out an existing pattern.**
+  Adding a brand-new resource block is the *last* resort, not the first move. For the concern at hand
+  (e.g. an IAM grant, a database, a bucket, a service account, a firewall rule), search the repo in
+  this order and stop at the first that fits:
+  1. **An existing iteration construct that already creates this kind of thing** — a `for_each` /
+     `count` / `dynamic` block, or the `map` / `list` / `locals` / `*.tfvars` collection that drives
+     one (e.g. an IAM bindings map keyed by `role||member`, an instances map). If it exists, **add an
+     entry to that collection** — do not write a standalone resource alongside it.
+  2. **A module that wraps this concern** — a local module, a registry/published module the repo
+     already uses, or one in a sibling repo — call or extend it rather than re-implementing.
+  3. **A root-module loop or established convention** for this resource type — follow it.
+  4. **Only if none of the above fits**, author a new resource from scratch — and say so explicitly:
+     name what you searched for (the map/module/loop) and why nothing could absorb the change.
 - **Read before you write.** Match the surrounding structure, naming, and idioms.
 - **Proportional effort.** Smallest change that fully solves it; don't reinvent or gold-plate.
 
